@@ -1,103 +1,111 @@
-/* Reset defaults */
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-html, body {
-  height: 100%;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(to bottom, #0077b6, #90e0ef);
-  color: #fff;
-  position: relative;
+/* Page background */
+body {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
 }
 
-/* Logo in top-left (small, ~1 inch) */
+/* Logo */
 .logo {
   position: absolute;
   top: 20px;
   left: 20px;
   width: 96px;   /* ~1 inch */
   height: 96px;  /* ~1 inch */
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
-/* Center container */
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
+/* Main container */
 .container {
-  text-align: center;
   width: 100%;
   max-width: 900px;
   padding: 20px;
+  padding-top: 140px; /* space for logo */
+  text-align: center;
 }
 
+/* Title */
 h1 {
-  margin-bottom: 40px;
-  font-size: 2.5em;
+  margin-bottom: 30px;
+  font-size: 2rem;
 }
 
-/* Planner layout */
-.planner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
+/* Dropdown container */
 .dropdowns {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 20px;
   justify-content: center;
-  margin-bottom: 15px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
+/* Labels */
+label {
+  font-size: 1rem;
+  margin-right: 8px;
+}
+
+/* Select dropdowns */
 select {
   padding: 10px;
-  border-radius: 5px;
+  font-size: 1rem;
+  border-radius: 6px;
   border: none;
-  font-size: 1em;
+
+  background-color: #ffffff; /* critical */
+  color: #000000;            /* critical */
+
+  min-width: 260px;
 }
 
-.plan-btn {
-  padding: 10px 20px;
+/* Button */
+button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border-radius: 8px;
   border: none;
-  border-radius: 5px;
-  font-size: 1.1em;
   cursor: pointer;
-  background-color: #023e8a;
-  color: #fff;
-  transition: background 0.3s;
+
+  background-color: #1abc9c;
+  color: #000;
+  font-weight: bold;
 }
 
-.plan-btn:hover {
-  background-color: #0077b6;
+button:hover {
+  background-color: #16a085;
 }
 
-/* Result box */
-pre {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
+/* Results box */
+#result {
+  margin-top: 25px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.35);
   border-radius: 10px;
-  margin-top: 20px;
-  text-align: left;
-  max-height: 50vh;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  font-size: 1.1em;
+  font-size: 1.05rem;
+  line-height: 1.6;
 }
 
-/* Responsive adjustments */
+/* Mobile safety */
 @media (max-width: 600px) {
-  .dropdowns {
-    flex-direction: column;
+  select {
+    min-width: 100%;
   }
 }
