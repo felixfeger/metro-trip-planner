@@ -1,10 +1,27 @@
 // ---- Metro System ----
 const metroSystem = {
   stations: [
-    "Union Station", "Downtown Lego City", "Airport Metro Transit Center",
-    "Death Star City", "Downtown Santa Mooica", "Emergency HQ",
-    "Desktop Hills", "Table Central", "FLX T2", "Asian Town"
+    "Union Station",
+    "Downtown Lego City",
+    "Airport Metro Transit Center",
+    "Death Star City",
+    "Downtown Santa Mooica",
+    "Emergency HQ",
+    "Desktop Hills",
+    "Table Central",
+    "FLX T2",
+    "Asian Town",
+
+    // B Line stations
+    "Couch Chair Park",
+    "Dine Park",
+    "TV Central",
+    "North Hollowwood",
+
+    // D Line station
+    "William Western"
   ],
+
   connections: [
     // A Line
     { from: "Union Station", to: "Downtown Lego City", line: "A" },
@@ -12,14 +29,14 @@ const metroSystem = {
     { from: "Airport Metro Transit Center", to: "Death Star City", line: "A" },
     { from: "Death Star City", to: "Downtown Santa Mooica", line: "A" },
 
-     // B Line
+    // B Line
     { from: "Union Station", to: "Airport Metro Transit Center", line: "B" },
     { from: "Airport Metro Transit Center", to: "Couch Chair Park", line: "B" },
     { from: "Couch Chair Park", to: "Dine Park", line: "B" },
     { from: "Dine Park", to: "TV Central", line: "B" },
     { from: "TV Central", to: "North Hollowwood", line: "B" },
 
-     // D Line
+    // D Line
     { from: "Union Station", to: "Airport Metro Transit Center", line: "D" },
     { from: "Airport Metro Transit Center", to: "William Western", line: "D" },
 
@@ -40,8 +57,10 @@ const metroSystem = {
 
 // ---- Build Graph ----
 const graph = {};
-metroSystem.stations.forEach(s => graph[s] = []);
+metroSystem.stations.forEach(s => (graph[s] = []));
+
 metroSystem.connections.forEach(c => {
+  if (!graph[c.from] || !graph[c.to]) return;
   graph[c.from].push({ station: c.to, line: c.line });
   graph[c.to].push({ station: c.from, line: c.line });
 });
@@ -49,9 +68,13 @@ metroSystem.connections.forEach(c => {
 // ---- Populate Dropdowns ----
 const startSelect = document.getElementById("start");
 const endSelect = document.getElementById("end");
+
+startSelect.innerHTML = "";
+endSelect.innerHTML = "";
+
 metroSystem.stations.forEach(st => {
-  startSelect.add(new Option(st, st));
-  endSelect.add(new Option(st, st));
+  startSelect.appendChild(new Option(st, st));
+  endSelect.appendChild(new Option(st, st));
 });
 
 // ---- BFS Pathfinding ----
@@ -80,9 +103,14 @@ function findRoute(graph, start, end) {
 function planTrip() {
   const start = startSelect.value;
   const end = endSelect.value;
-  const route = findRoute(graph, start, end);
-
   const result = document.getElementById("result");
+
+  if (!start || !end) {
+    result.textContent = "Please select both stations.";
+    return;
+  }
+
+  const route = findRoute(graph, start, end);
   if (!route) {
     result.textContent = "No route found!";
     return;
@@ -90,10 +118,11 @@ function planTrip() {
 
   let output = `Trip from ${start} to ${end}:\n\n`;
   let currentLine = "";
+
   route.forEach(step => {
     if (step.line !== currentLine) {
       currentLine = step.line;
-      output += `-- Take ${currentLine} Line --\n`;
+      output += `— Take ${currentLine} Line —\n`;
     }
     output += `${step.from} → ${step.to}\n`;
   });
