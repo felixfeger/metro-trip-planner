@@ -6,21 +6,24 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>City Metro Trip Planner</h1>
+  <div class="container">
+    <h1>City Metro Trip Planner</h1>
 
-  <div class="planner">
-    <label for="start">Start Station:</label>
-    <select id="start"></select>
+    <div class="planner">
+      <div class="dropdowns">
+        <label for="start">Start Station:</label>
+        <select id="start"></select>
 
-    <label for="end">End Station:</label>
-    <select id="end"></select>
+        <label for="end">End Station:</label>
+        <select id="end"></select>
+      </div>
 
-    <button onclick="planTrip()">Plan Trip</button>
+      <button class="plan-btn" onclick="planTrip()">Plan Trip</button>
+    </div>
+
+    <pre id="result"></pre>
   </div>
-
-  <pre id="result"></pre>
 
   <script src="metro.js"></script>
 </body>
 </html>
-
