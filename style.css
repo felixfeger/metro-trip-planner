@@ -1,31 +1,87 @@
-body {
+/* Reset default margin/padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
   font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #0077b6, #90e0ef);
+  color: #fff;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  text-align: center;
+  width: 100%;
+  max-width: 900px;
   padding: 20px;
-  background: #f0f0f0;
 }
 
 h1 {
-  text-align: center;
+  margin-bottom: 40px;
+  font-size: 2.5em;
 }
 
 .planner {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
-button {
-  padding: 5px 10px;
+.dropdowns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+select {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 1em;
+}
+
+.plan-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1em;
   cursor: pointer;
+  background-color: #023e8a;
+  color: #fff;
+  transition: background 0.3s;
+}
+
+.plan-btn:hover {
+  background-color: #0077b6;
 }
 
 pre {
-  background: #fff;
-  padding: 15px;
-  border-radius: 5px;
-  max-width: 600px;
-  margin: auto;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  text-align: left;
+  max-height: 50vh;
+  overflow-y: auto;
   white-space: pre-wrap;
+  font-size: 1.1em;
+}
+
+/* Make dropdowns and button responsive */
+@media (max-width: 600px) {
+  .dropdowns {
+    flex-direction: column;
+  }
 }
