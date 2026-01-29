@@ -117,7 +117,30 @@ function planTrip() {
   }
 
   let output = `Trip from ${start} to ${end}:\n\n`;
-  let currentLine = "";
+  let currentLine = null;
+
+  route.forEach((step, index) => {
+    // First step
+    if (index === 0) {
+      currentLine = step.line;
+      output += `— Take ${currentLine} Line —\n`;
+    }
+
+    // Transfer
+    if (step.line !== currentLine) {
+      output += `\nTransfer to ${step.line} Line at ${step.from}\n`;
+      output += `— Take ${step.line} Line —\n`;
+      currentLine = step.line;
+    }
+
+    output += `${step.from} → ${step.to}\n`;
+  });
+
+  output += `\nArrive at ${end}`;
+
+  result.textContent = output;
+}
+
 
   route.forEach(step => {
     if (step.line !== currentLine) {
