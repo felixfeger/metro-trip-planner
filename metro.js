@@ -12,6 +12,17 @@ const metroSystem = {
     { from: "Airport Metro Transit Center", to: "Death Star City", line: "A" },
     { from: "Death Star City", to: "Downtown Santa Mooica", line: "A" },
 
+     // B Line
+    { from: "Union Station", to: "Airport Metro Transit Center", line: "B" },
+    { from: "Airport Metro Transit Center", to: "Couch Chair Park", line: "B" },
+    { from: "Couch Chair Park", to: "Dine Park", line: "B" },
+    { from: "Dine Park", to: "TV Central", line: "B" },
+    { from: "TV Central", to: "North Hollowwood", line: "B" },
+
+     // D Line
+    { from: "Union Station", to: "Airport Metro Transit Center", line: "D" },
+    { from: "Airport Metro Transit Center", to: "William Western", line: "D" },
+
     // E Line
     { from: "Union Station", to: "Downtown Lego City", line: "E" },
     { from: "Downtown Lego City", to: "Emergency HQ", line: "E" },
@@ -82,7 +93,7 @@ function planTrip() {
   route.forEach(step => {
     if (step.line !== currentLine) {
       currentLine = step.line;
-      output += `-- Take Line ${currentLine} --\n`;
+      output += `-- Take ${currentLine} Line --\n`;
     }
     output += `${step.from} → ${step.to}\n`;
   });
