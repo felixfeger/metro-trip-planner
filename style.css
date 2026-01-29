@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: #f0f0f0;
+}
+
+h1 {
+  text-align: center;
+}
+
+.planner {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+
+button {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+pre {
+  background: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  max-width: 600px;
+  margin: auto;
+  white-space: pre-wrap;
+}
