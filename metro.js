@@ -1,4 +1,6 @@
-// ---- Metro System ----
+// ================================
+// METRO SYSTEM DATA
+// ================================
 const metroSystem = {
   stations: [
     "Union Station",
@@ -12,13 +14,13 @@ const metroSystem = {
     "FLX T2",
     "Asian Town",
 
-    // B Line stations
+    // B Line
     "Couch Chair Park",
     "Dine Park",
     "TV Central",
     "North Hollowwood",
 
-    // D Line station
+    // D Line
     "William Western"
   ],
 
@@ -55,100 +57,93 @@ const metroSystem = {
   ]
 };
 
-// ---- Build Graph ----
-const graph = {};
-metroSystem.stations.forEach(s => (graph[s] = []));
+// ================================
+// DOM READY (CRITICAL)
+// ================================
+document.addEventListener("DOMContentLoaded", () => {
 
-metroSystem.connections.forEach(c => {
-  if (!graph[c.from] || !graph[c.to]) return;
-  graph[c.from].push({ station: c.to, line: c.line });
-  graph[c.to].push({ station: c.from, line: c.line });
-});
+  // ---- Build Graph ----
+  const graph = {};
+  metroSystem.stations.forEach(st => (graph[st] = []));
 
-// ---- Populate Dropdowns ----
-const startSelect = document.getElementById("start");
-const endSelect = document.getElementById("end");
+  metroSystem.connections.forEach(c => {
+    if (!graph[c.from] || !graph[c.to]) return;
+    graph[c.from].push({ station: c.to, line: c.line });
+    graph[c.to].push({ station: c.from, line: c.line });
+  });
 
-startSelect.innerHTML = "";
-endSelect.innerHTML = "";
-
-metroSystem.stations.forEach(st => {
-  startSelect.appendChild(new Option(st, st));
-  endSelect.appendChild(new Option(st, st));
-});
-
-// ---- BFS Pathfinding ----
-function findRoute(graph, start, end) {
-  const queue = [{ station: start, path: [] }];
-  const visited = new Set();
-
-  while (queue.length > 0) {
-    const { station, path } = queue.shift();
-    if (station === end) return path;
-
-    if (visited.has(station)) continue;
-    visited.add(station);
-
-    for (const next of graph[station]) {
-      queue.push({
-        station: next.station,
-        path: [...path, { from: station, to: next.station, line: next.line }]
-      });
-    }
-  }
-  return null;
-}
-
-// ---- Display Route ----
-function planTrip() {
-  const start = startSelect.value;
-  const end = endSelect.value;
+  // ---- Get Elements ----
+  const startSelect = document.getElementById("start");
+  const endSelect = document.getElementById("end");
   const result = document.getElementById("result");
 
-  if (!start || !end) {
-    result.textContent = "Please select both stations.";
-    return;
-  }
+  // ---- Populate Dropdowns ----
+  startSelect.innerHTML = "";
+  endSelect.innerHTML = "";
 
-  const route = findRoute(graph, start, end);
-  if (!route) {
-    result.textContent = "No route found!";
-    return;
-  }
-
-  let output = `Trip from ${start} to ${end}:\n\n`;
-  let currentLine = null;
-
-  route.forEach((step, index) => {
-    // First step
-    if (index === 0) {
-      currentLine = step.line;
-      output += `— Take ${currentLine} Line —\n`;
-    }
-
-    // Transfer
-    if (step.line !== currentLine) {
-      output += `\nTransfer to ${step.line} Line at ${step.from}\n`;
-      output += `— Take ${step.line} Line —\n`;
-      currentLine = step.line;
-    }
-
-    output += `${step.from} → ${step.to}\n`;
+  metroSystem.stations.forEach(st => {
+    startSelect.appendChild(new Option(st, st));
+    endSelect.appendChild(new Option(st, st));
   });
 
-  output += `\nArrive at ${end}`;
+  // ---- BFS Route Finder ----
+  function findRoute(start, end) {
+    const queue = [{ station: start, path: [] }];
+    const visited = new Set();
 
-  result.textContent = output;
-}
+    while (queue.length > 0) {
+      const { station, path } = queue.shift();
+      if (station === end) return path;
 
+      if (visited.has(station)) continue;
+      visited.add(station);
 
-  route.forEach(step => {
-    if (step.line !== currentLine) {
-      currentLine = step.line;
-      output += `— Take ${currentLine} Line —\n`;
+      for (const next of graph[station]) {
+        queue.push({
+          station: next.station,
+          path: [...path, { from: station, to: next.station, line: next.line }]
+        });
+      }
     }
-    output += `${step.from} → ${step.to}\n`;
-  });
+    return null;
+  }
 
-  result.textContent = output;
-}
+  // ---- Trip Planner (with Transfers) ----
+  window.planTrip = function () {
+    const start = startSelect.value;
+    const end = endSelect.value;
+
+    if (!start || !end) {
+      result.textContent = "Please select both stations.";
+      return;
+    }
+
+    const route = findRoute(start, end);
+    if (!route) {
+      result.textContent = "No route found!";
+      return;
+    }
+
+    let output = `Trip from ${start} to ${end}:\n\n`;
+    let currentLine = null;
+
+    route.forEach((step, index) => {
+      if (index === 0) {
+        currentLine = step.line;
+        output += `— Take ${currentLine} Line —\n`;
+      }
+
+      if (step.line !== currentLine) {
+        output += `\nTransfer to ${step.line} Line at ${step.from}\n`;
+        output += `— Take ${step.line} Line —\n`;
+        currentLine = step.line;
+      }
+
+      output += `${step.from} → ${step.to}\n`;
+    });
+
+    output += `\nArrive at ${end}`;
+    result.textContent = output;
+  };
+
+});
