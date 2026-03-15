@@ -1,32 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>City Metro Trip Planner</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#eef2f8"/>
+  <title>City Metro — Trip Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Logo -->
-  <img src="logo.png" alt="Metro Logo" class="logo">
 
-  <div class="container">
-    <h1>City Metro Trip Planner</h1>
+<!-- HEADER -->
+<header>
+  <img src="logo.png" alt="City Metro" class="logo"/>
+  <div class="header-text">
+    <h1>City Metro</h1>
+    <p>Trip Planner</p>
+  </div>
+  <div class="live-badge">
+    <div class="live-dot" id="live-dot"></div>
+    <span id="live-status">Live</span>
+  </div>
+</header>
 
-    <div class="planner">
-      <div class="dropdowns">
-        <label for="start">Start Station:</label>
-        <select id="start"></select>
+<!-- PAGE -->
+<div class="page">
 
-        <label for="end">End Station:</label>
-        <select id="end"></select>
-      </div>
-
-      <button class="plan-btn" onclick="planTrip()">Plan Trip</button>
-    </div>
-
-    <pre id="result"></pre>
+  <!-- HERO -->
+  <div class="hero">
+    <h2>Plan your<br><em>journey</em></h2>
+    <p>Real-time routing across the City Metro network</p>
   </div>
 
-  <script src="metro.js"></script>
+  <!-- PLANNER CARD -->
+  <div class="card">
+    <div class="card-head">Route planner</div>
+    <div class="planner-body">
+      <div class="station-row">
+        <div class="field-wrap">
+          <span class="field-label">From</span>
+          <select id="start"></select>
+        </div>
+        <button class="swap-btn" title="Swap" onclick="swapStations()">⇄</button>
+        <div class="field-wrap">
+          <span class="field-label">To</span>
+          <select id="end"></select>
+        </div>
+      </div>
+      <button class="plan-btn" onclick="planTrip()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Find Route
+      </button>
+    </div>
+  </div>
+
+  <!-- LIVE TRAINS -->
+  <div class="card">
+    <div class="card-head">Network status</div>
+    <div class="live-body">
+      <div class="live-header-row">
+        <div class="live-title">Active trains</div>
+        <div class="live-count">Live: <strong id="active-count">—</strong></div>
+      </div>
+      <div class="chips-wrap" id="live-trains-grid">
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2)">Loading…</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="result-card" class="card"></div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  Copyright © 2026 Republic State Railway and Transportation Authority. All rights reserved.<br>
+  An official site of the Republic States Government.
+</footer>
+
+<script src="metro.js"></script>
 </body>
 </html>
