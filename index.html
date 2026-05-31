@@ -400,11 +400,27 @@
       .swap-btn { display: none; }
       .result-stats { gap: 10px; }
     }
-  </style>
+  
+    /* ── Alert banner ── */
+    #alert-banner {
+      display: none;
+      background: #fffbeb;
+      border-bottom: 2px solid #d97706;
+      padding: 10px 20px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 500;
+      color: #92400e;
+      line-height: 1.6;
+    }
+    .alert-item { margin-right: 16px; }
+    .chip-sub { color: var(--muted2); font-weight: 400; }
+</style>
 </head>
 <body>
 
 <!-- HEADER -->
+<div id="alert-banner"></div>
 <header>
   <img id="header-logo" class="logo" alt="City Metro"/>
   <div class="header-text">
