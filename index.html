@@ -439,7 +439,7 @@
     }
     #alert-banner .banner-items { display: flex; flex-direction: column; gap: 3px; }
     #alert-banner .banner-item { font-size: 12px; color: #92400e; line-height: 1.5; }
-    .chip-sub { color: var(--muted2); font-weight: 400; }
+    .chip-sub { display: none; }
 </style>
 </head>
 <body>
@@ -956,15 +956,14 @@ function planTrip() {
   // Build journey HTML
   let journeyHTML = '';
   segments.forEach((seg, si) => {
-    const color   = LINE_COLORS[seg.line] || '#888';
-    const bgLight = `${color}14`;
+    const color = LINE_COLORS[seg.line] || '#888';
 
     journeyHTML += `
-      <div class="seg-wrap">
-        <div class="seg-header" style="background:${bgLight}">
-          <div class="line-circle" style="background:${color}">${seg.line}</div>
-          <div class="seg-line-name" style="color:${color}">${LINE_NAMES[seg.line] || seg.line + ' Line'}</div>
-          <div class="seg-stops">${seg.stops.length - 1} stop${seg.stops.length - 1 !== 1 ? 's' : ''}</div>
+      <div class="journey-segment">
+        <div class="segment-line-header" style="border-left:4px solid ${color}">
+          <div class="line-pill" style="background:${color}">${seg.line}</div>
+          <div class="segment-line-name" style="color:${color}">${LINE_NAMES[seg.line] || seg.line + ' Line'}</div>
+          <div class="segment-stop-count">${seg.stops.length - 1} stop${seg.stops.length - 1 !== 1 ? 's' : ''}</div>
         </div>
         <div class="stop-list" style="--line-clr:${color}">`;
 
@@ -975,15 +974,15 @@ function planTrip() {
       const isClosed   = closedNames2.has(stop);
 
       let tagHTML = '';
-      if (isFirst)    tagHTML += `<span class="tag depart">Depart</span>`;
-      if (isTransfer) tagHTML += `<span class="tag transfer">Transfer</span>`;
-      if (isLast)     tagHTML += `<span class="tag arrive">Arrive</span>`;
-      if (isClosed)   tagHTML += `<span class="tag" style="background:#fef2f2;color:#dc2626;border-color:#fecaca">Closed</span>`;
+      if (isFirst)    tagHTML += `<span class="stop-tag depart">Depart</span>`;
+      if (isTransfer) tagHTML += `<span class="stop-tag transfer">Transfer</span>`;
+      if (isLast)     tagHTML += `<span class="stop-tag arrive">Arrive</span>`;
+      if (isClosed)   tagHTML += `<span class="stop-tag" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca">Closed</span>`;
 
-      const cls = isTransfer ? 'stop-row is-transfer' : (isFirst || isLast ? 'stop-row is-terminal' : 'stop-row');
+      const cls = isTransfer ? 'stop-item is-transfer' : (isFirst || isLast ? 'stop-item is-terminal' : 'stop-item');
       journeyHTML += `
         <div class="${cls}" ${isClosed ? 'style="opacity:.5;text-decoration:line-through"' : ''}>
-          <div class="stop-label">${stop}</div>
+          <div class="stop-name">${stop}</div>
           ${tagHTML}
         </div>`;
     });
@@ -1007,12 +1006,13 @@ function planTrip() {
   // Turnback warnings for lines on this route
   for (const tb of turnbacks) {
     if (!segments.some(s => s.line === tb.line)) continue;
-    const name = STATION_CODE_MAP[tb.station_id] || tb.station_name;
-    const dir  = tb.direction === 'both' ? '' : ` ${tb.direction}bound`;
+    const name   = STATION_CODE_MAP[tb.station_id] || tb.station_name;
+    const dir    = tb.direction === 'both' ? '' : ` ${tb.direction === 'WB' ? 'westbound' : 'eastbound'}`;
+    const reason = tb.reason || 'a service adjustment';
     notices.push(`
-      <div class="route-notice is-sched">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div><strong>${tb.line} Line${dir}</strong> is turning back at ${name} — ${tb.reason}.</div>
+      <div class="route-notice is-warn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <div><strong>${tb.line} Line${dir} trains</strong> are turning back at ${name} due to ${reason}. Service beyond this station may not be available.</div>
       </div>`);
   }
 
@@ -1039,16 +1039,14 @@ function planTrip() {
 
   card.style.display = 'block';
   card.innerHTML = `
-    <div class="result-hero">
-      <div>
-        <div class="result-from-to">${start} <span class="arrow">→</span> ${end}</div>
-        <div class="result-summary">${segments.length} line${segments.length > 1 ? 's' : ''} · ${totalStops} stop${totalStops !== 1 ? 's' : ''} · ~${estMins} min</div>
-      </div>
-      <div class="stats-strip">
-        <div class="stat-item"><div class="stat-num">${totalStops}</div><div class="stat-lbl">Stops</div></div>
-        <div class="stat-item"><div class="stat-num">${transfers}</div><div class="stat-lbl">Transfer${transfers !== 1 ? 's' : ''}</div></div>
-        <div class="stat-item"><div class="stat-num">~${estMins}</div><div class="stat-lbl">Minutes</div></div>
-      </div>
+    <div class="result-header">
+      <div class="result-title">${start} <span>→</span> ${end}</div>
+      <div class="result-meta">${segments.length} line${segments.length > 1 ? 's' : ''} · ${totalStops} stop${totalStops !== 1 ? 's' : ''} · ~${estMins} min</div>
+    </div>
+    <div class="result-stats">
+      <div class="result-stat"><div class="stat-num">${totalStops}</div><div class="stat-lbl">Stops</div></div>
+      <div class="result-stat"><div class="stat-num">${transfers}</div><div class="stat-lbl">Transfer${transfers !== 1 ? 's' : ''}</div></div>
+      <div class="result-stat"><div class="stat-num">~${estMins}</div><div class="stat-lbl">Minutes</div></div>
     </div>
     <div class="journey">${journeyHTML}</div>
     ${notices.join('')}
