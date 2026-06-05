@@ -24,9 +24,9 @@
       --shadow:    0 4px 16px rgba(15,30,60,.09), 0 1px 4px rgba(15,30,60,.05);
       --shadow-lg: 0 12px 40px rgba(15,30,60,.12), 0 4px 12px rgba(15,30,60,.07);
       --a-line: #2563eb;
-      --b-line: #7c3aed;
-      --d-line: #0891b2;
-      --e-line: #d97706;
+      --b-line: #FF2700;
+      --d-line: #EE00FF;
+      --e-line: #F7B618;
       --f-line: #c2410c;
       --k-line: #ec4899;
     }
@@ -616,13 +616,12 @@ const BD_HEADWAYS = { B: 3.5, D: 3 };
    GRAPH BUILDER — respects closures & turnbacks
 ═══════════════════════════════════════════════════ */
 function buildGraph() {
-  // Closed station names
+  // Closed station names — trains SKIP these but the line continues through
   const closedNames = new Set(
     closures.map(c => STATION_CODE_MAP[c.station_id] || c.station_name)
   );
 
-  // Turnback map: line → Set of stations where that line terminates short
-  // When a turnback exists, remove connections BEYOND that station for that line
+  // Turnback map — ONLY explicit turnbacks cut the line, NOT closures
   const turnbackMap = {};
   for (const tb of turnbacks) {
     const name = STATION_CODE_MAP[tb.station_id] || tb.station_name;
@@ -630,29 +629,44 @@ function buildGraph() {
     turnbackMap[tb.line].add(name);
   }
 
-  // Filter connections
-  const activeConnections = BASE_CONNECTIONS.filter(c => {
-    // Remove if either endpoint is closed
-    if (closedNames.has(c.from) || closedNames.has(c.to)) return false;
-    // Remove if this line has a turnback at either endpoint meaning service
-    // doesn't continue beyond that point
-    const tb = turnbackMap[c.line];
-    if (tb && (tb.has(c.from) || tb.has(c.to))) {
-      // Keep connection INTO the turnback station but not beyond
-      // i.e. remove the connection where the turnback station is c.from
-      // (trains don't depart from there further)
-      if (tb.has(c.from)) return false;
+  // Build full connection list including bypass edges for closed stations.
+  // A closed station still allows travel through it — we just add a direct
+  // connection between its neighbours so BFS can skip it seamlessly.
+  const bypassConnections = [];
+  for (const closed of closedNames) {
+    // Find all connections touching this closed station
+    const incoming = BASE_CONNECTIONS.filter(c => c.to   === closed);
+    const outgoing = BASE_CONNECTIONS.filter(c => c.from === closed);
+    for (const inc of incoming) {
+      for (const out of outgoing) {
+        if (inc.line === out.line && inc.from !== out.to) {
+          bypassConnections.push({ from: inc.from, to: out.to, line: inc.line, bypass: closed });
+          bypassConnections.push({ from: out.to, to: inc.from, line: inc.line, bypass: closed });
+        }
+      }
     }
+  }
+
+  // All connections: originals (excluding closed endpoints) + bypass edges
+  const allConnections = [
+    ...BASE_CONNECTIONS.filter(c => !closedNames.has(c.from) && !closedNames.has(c.to)),
+    ...bypassConnections,
+  ];
+
+  // Apply turnback cuts (turnbacks DO block the route)
+  const activeConnections = allConnections.filter(c => {
+    const tb = turnbackMap[c.line];
+    if (tb && tb.has(c.from)) return false;
     return true;
   });
 
-  // Build adjacency graph from active connections
+  // Build adjacency graph — include all non-closed stations
   const g = {};
   STATIONS.forEach(s => { if (!closedNames.has(s)) g[s] = []; });
 
   activeConnections.forEach(c => {
-    if (g[c.from]) g[c.from].push({ station: c.to,   line: c.line });
-    if (g[c.to])   g[c.to  ].push({ station: c.from, line: c.line });
+    if (g[c.from]) g[c.from].push({ station: c.to, line: c.line, skips: c.bypass || null });
+    if (g[c.to])   g[c.to]  .push({ station: c.from, line: c.line, skips: c.bypass || null });
   });
 
   return { graph: g, closedNames };
@@ -709,10 +723,10 @@ function populateDropdowns() {
     const prev = sel.value;
     sel.innerHTML = '';
     sorted.forEach(s => {
-      const opt = new Option(closedNames.has(s) ? `${s} (Closed)` : s, s);
+      // Closed stations still selectable — train skips the stop but doesn't block boarding
+      const opt = new Option(closedNames.has(s) ? `${s} ⚠ (Station Closed)` : s, s);
       if (closedNames.has(s)) {
-        opt.style.color = '#dc2626';
-        opt.disabled    = true;
+        opt.style.color = '#d97706';
       }
       sel.appendChild(opt);
     });
@@ -901,11 +915,8 @@ function planTrip() {
   const { graph, closedNames } = buildGraph();
 
   // Warn if start or end is closed
-  if (closedNames.has(start) || closedNames.has(end)) {
-    card.style.display = 'block';
-    card.innerHTML = `<div class="err-box">⚠ ${closedNames.has(start) ? start : end} is currently closed. Please select an alternative station.</div>`;
-    return;
-  }
+  // Closed start/end — warn but still route (train skips, doesn't block)
+  // No hard block — the bypass graph handles routing through/from closed stations
 
   const segments = findRoute(start, end, graph);
 
@@ -977,11 +988,11 @@ function planTrip() {
       if (isFirst)    tagHTML += `<span class="stop-tag depart">Depart</span>`;
       if (isTransfer) tagHTML += `<span class="stop-tag transfer">Transfer</span>`;
       if (isLast)     tagHTML += `<span class="stop-tag arrive">Arrive</span>`;
-      if (isClosed)   tagHTML += `<span class="stop-tag" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca">Closed</span>`;
+      if (isClosed)   tagHTML += `<span class="stop-tag" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a">Train skips</span>`;
 
       const cls = isTransfer ? 'stop-item is-transfer' : (isFirst || isLast ? 'stop-item is-terminal' : 'stop-item');
       journeyHTML += `
-        <div class="${cls}" ${isClosed ? 'style="opacity:.5;text-decoration:line-through"' : ''}>
+        <div class="${cls}" ${isClosed ? 'style="opacity:.55"' : ''}>
           <div class="stop-name">${stop}</div>
           ${tagHTML}
         </div>`;
