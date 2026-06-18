@@ -5,7 +5,7 @@
 const API_BASE = 'https://trains-api.felixfeger46.workers.dev';
 
 const LINE_COLORS = {
-  A: '#1d4ed8', B: '#dc2626', D: '#7c3aed',
+  A: '#1d4ed8', B: '#e3131b', D: '#dc2626',
   E: '#d97706', F: '#c2410c', K: '#db2777',
 };
 const LINE_NAMES = {
